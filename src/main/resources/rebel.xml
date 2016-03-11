@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.zeroturnaround.com" xsi:schemaLocation="http://www.zeroturnaround.com http://www.zeroturnaround.com/alderaan/rebel-2_0.xsd">
+
+    <classpath>
+        <dir name="D:/projects/git/IZAOCAN4J/target">
+        </dir>
+        <dir name="D:/projects/IYOUBOX/iyoubox/trunk/40Source/40.50JavaS2JH/core-service/target/classes">
+        </dir>
+        <dir name="D:/projects/IYOUBOX/iyoubox/trunk/40Source/40.50JavaS2JH/common-service/target/classes">
+            <exclude name="META-INF/**" />
+        </dir>
+        <dir name="D:/projects/IYOUBOX/iyoubox/trunk/40Source/40.50JavaS2JH/crawl-service/target/classes">
+        </dir>
+    </classpath>
+    <web>
+        <link target="/">
+            <dir name="D:\projects\git\IZAOCAN4J\src\main\webapp">
+            </dir>
+        </link>
+        <link target="/">
+            <dir name="D:/projects/IYOUBOX/iyoubox/trunk/40Source/40.50JavaS2JH/common-service/src/main/resources/META-INF/resources">
+            </dir>
+        </link>
+    </web>
+
+</application>

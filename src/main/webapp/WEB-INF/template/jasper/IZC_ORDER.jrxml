@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="IZC_ORDER" printOrder="Horizontal" pageWidth="180" pageHeight="120" columnWidth="180" leftMargin="0" rightMargin="0" topMargin="10" bottomMargin="0" uuid="5aad5175-4602-49bd-8756-3af8c741a7a4">
+	<property name="ireport.zoom" value="3.4522712143931065"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="55"/>
+	<parameter name="ORDER_SID" class="java.util.Collection">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+STUFF(( SELECT '+'+menu_name FROM zc_day_order_detail
+where day_order_sid=o.sid
+FOR XML PATH('')),1,1,'')AS menu_name,
+c.true_name,c.mobile_phone,
+(z.name+p.point_name+coalesce(o.office_num,'')) as add_name,
+CASE w.expected_early_receive_time
+WHEN 480 THEN '8:00-8:30'
+WHEN 510 THEN '8:30-9:00'
+WHEN 540 THEN '9:00-9:30'
+WHEN 570 THEN '9:30-10:00' END AS period
+FROM zc_day_order o
+INNER JOIN zc_week_order w
+ON o.week_order_sid = w.sid
+INNER JOIN zc_customer c
+ON o.customer_sid = c.sid
+INNER JOIN zc_receive_point p
+ON o.point_sid = p.sid
+INNER JOIN zc_zone z
+ON p.zone_sid = z.sid
+AND $X{IN,o.sid,ORDER_SID}
+ORDER BY w.expected_early_receive_time ASC]]>
+	</queryString>
+	<field name="menu_name" class="java.lang.String"/>
+	<field name="true_name" class="java.lang.String"/>
+	<field name="mobile_phone" class="java.lang.String"/>
+	<field name="add_name" class="java.lang.String"/>
+	<field name="period" class="java.lang.String"/>
+	<detail>
+		<band height="110">
+			<textField isStretchWithOverflow="true">
+				<reportElement mode="Transparent" x="35" y="60" width="135" height="45" uuid="bf9bc5a2-1324-49fc-a669-452647f623f5"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{menu_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="35" y="30" width="135" height="15" uuid="d70b9229-80c7-4389-ae3d-ce51e9cfb403"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{true_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="35" y="45" width="135" height="15" uuid="7f534fc7-7bb6-4005-8ca6-b1a08497ca48"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mobile_phone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="35" y="15" width="135" height="15" uuid="715b7fa8-1fa0-4176-8eb6-0c3001d84fca"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{add_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="35" y="0" width="135" height="15" uuid="4780279a-7c17-4302-bf25-fa4ea780bd86"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{period}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="5" y="0" width="30" height="15" uuid="05bedfb7-5ab7-4a31-abad-ddd349dcbde5"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[时间：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="5" y="15" width="30" height="15" uuid="016cd686-e86a-459c-9f8b-94d2283d64d3"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[地址：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="5" y="45" width="30" height="15" uuid="86de92b9-cfcc-4d40-9cb2-3f3807d3bb8e"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[电话：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="5" y="30" width="30" height="15" uuid="5e83d84d-17dc-4732-aedf-d47ebff20b53"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[姓名：]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="5" y="60" width="30" height="15" uuid="c80a06f4-e6a2-40fa-9f25-cecac84d90a7"/>
+				<textElement>
+					<font fontName="华文宋体" size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[餐类：]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

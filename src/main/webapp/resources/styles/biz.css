@@ -1,0 +1,77 @@
+.nav-tabs.nav-stacked>li:first-child>a {
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+
+.nav-tabs.nav-stacked>li:last-child>a {
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.img_thumbnail {
+	width: 60px;
+	height: 60px;
+	cursor: pointer
+}
+
+.ui-jqgrid .ui-jqgrid-htable th div {
+	height: auto;
+	overflow: hidden;
+	position: relative;
+}
+
+.column {
+	min-height: 300px;
+	float: left;
+}
+
+.column .dragbox {
+	margin: 5px 2px 20px;
+	background: #fff;
+	position: relative;
+	border: 1px solid #ddd;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.column .dragbox h2 {
+	margin: 0;
+	line-height: 12px;
+	font-size: 12px;
+	padding: 5px;
+	background: #f0f0f0;
+	color: #000;
+	border-bottom: 1px solid #eee;
+	font-family: Verdana;
+	cursor: move;
+	font-size: 12px;
+}
+
+.dragbox-content {
+	background: #fff;
+	min-height: 20px;
+	margin: 5px;
+}
+
+.column  .placeholder {
+	background: #f0f0f0;
+	border: 1px dashed #ddd;
+}
+
+.dragbox h2.dragbox-collapse {
+	background: #f0f0f0 url('collapse.png') no-repeat top right;
+}
+
+.dragbox h2 .configure {
+	font-weight: normal;
+	margin-right: 30px;
+	float: right;
+}
+
+fieldset {
+	margin-bottom: 10px;
+}
+
+legend {
+	margin-bottom: 10px;
+}

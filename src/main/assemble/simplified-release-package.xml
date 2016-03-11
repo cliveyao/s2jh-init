@@ -1,0 +1,26 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>simplified</id>
+    <formats>
+        <format>war</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>target/${project.build.finalName}</directory>
+            <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>**/*.jar</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>target/${project.build.finalName}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>**/core-service*.jar</include>
+                <include>**/common-service*.jar</include>
+                <include>**/crawl-service*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd  
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd 
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+    <!-- 该路径下的资源不用过滤 -->
+    <http pattern="/" security="none" />
+    <http pattern="/index**" security="none" />
+    <http pattern="/jcaptcha" security="none" />
+    <http pattern="/pub/**" security="none" />
+    <http pattern="/images/**" security="none" />
+    <http pattern="/favicon.ico" security="none" />
+    <http pattern="/resources/**" security="none" />
+    <http pattern="/assets/**" security="none" />
+    <http pattern="**/*.js" security="none" />
+    <http pattern="/rest/activiti/**" security="none" />
+    <http pattern="/common/casfailed.jsp" security="none" />
+
+    <http access-denied-page="/common/errors.jsp" auto-config="false" use-expressions="true"
+        entry-point-ref="loginUrlAuthenticationEntryPoint">
+        <request-cache ref="requestCache" />
+        <remember-me key="s2jh" token-validity-seconds="3600" data-source-ref="dataSource"
+            authentication-success-handler-ref="authenticationSuccessHistHandler" />
+        <custom-filter ref="myAuthFilter" position="FORM_LOGIN_FILTER" />
+        <custom-filter ref="concurrencyFilter" position="CONCURRENT_SESSION_FILTER" />
+        <custom-filter ref="securityFilter" before="FILTER_SECURITY_INTERCEPTOR" />
+        <logout logout-success-url="/pub/signin" />
+        <session-management session-authentication-strategy-ref="sas" />
+    </http>
+
+    <beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <beans:property name="loginFormUrl" value="/pub/signin" />
+    </beans:bean>
+
+    <!-- 认证成功，写入日志记录，并重置失败次数计数 -->
+    <beans:bean id="authenticationSuccessHistHandler" class="lab.s2jh.auth.security.AuthenticationSuccessHandler">
+        <beans:property name="defaultTargetUrl" value="/layout" />
+        <beans:property name="alwaysUseDefaultTargetUrl" value="false" />
+        <beans:property name="userService" ref="userService" />
+    </beans:bean>
+
+    <!-- 认证失败，写入日志记录，并累加失败次数计数 -->
+    <beans:bean id="authenticationFailureHandler" class="lab.s2jh.auth.security.AuthenticationFailureHandler">
+        <beans:property name="defaultFailureUrl" value="/pub/signin" />
+        <beans:property name="maxAuthenticationFailureTimes" value="20" />
+        <beans:property name="userService" ref="userService" />
+    </beans:bean>
+
+    <beans:bean id="myAuthFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        <beans:property name="sessionAuthenticationStrategy" ref="sas" />
+        <beans:property name="authenticationManager" ref="authenticationManager" />
+        <beans:property name="authenticationSuccessHandler" ref="authenticationSuccessHistHandler" />
+        <beans:property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+    </beans:bean>
+
+    <!-- 帐号同时登录次数访问控制 -->
+    <beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
+        <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+        <beans:constructor-arg name="expiredUrl" value="/pub/signin!expired" />
+    </beans:bean>
+
+    <beans:bean id="sas" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+        <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+        <beans:property name="maximumSessions" value="${concurrency.control.max.sessions}" />
+        <beans:property name="exceptionIfMaximumExceeded" value="false" />
+    </beans:bean>
+
+    <beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+    <!-- 加载提示信息国际化资源文件 -->
+    <beans:bean id="springSecurityMessageSource" class="org.springframework.security.core.SpringSecurityMessageSource">
+    </beans:bean>
+
+    <beans:bean id="requestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache" />
+
+    <!-- 配置过滤器 -->
+    <beans:bean id="securityFilter" class="lab.s2jh.auth.security.ExtSecurityInterceptor">
+        <!-- 用户拥有的权限 -->
+        <beans:property name="authenticationManager" ref="authenticationManager" />
+        <!-- 用户是否拥有所请求资源的权限 -->
+        <beans:property name="accessDecisionManager" ref="accessDecisionManager" />
+        <!-- 资源与权限对应关系 -->
+        <beans:property name="securityMetadataSource" ref="securityMetadataSource" />
+    </beans:bean>
+
+    <beans:bean id="innerUserDetailsService" class="lab.s2jh.auth.security.AuthUserDetailsService">
+        <beans:property name="userService" ref="userService" />
+    </beans:bean>
+
+    <beans:bean id="accessDecisionManager" class="lab.s2jh.auth.security.AccessDecisionManagerImpl"></beans:bean>
+    <beans:bean id="securityMetadataSource" class="lab.s2jh.auth.security.FilterInvocationSecurityMetadataSourceImpl">
+        <beans:property name="privilegeService" ref="privilegeService"></beans:property>
+    </beans:bean>
+
+    <!-- MD5加密密码 -->
+    <beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
+    <!-- JdbcTokenRepositoryImpl persistent transaction hacking: http://forum.springsource.org/showthread.php?103929-JdbcTokenRepositoryImpl-not-inserting-persistant-token -->
+    <aop:config>
+        <aop:pointcut
+            expression="execution(* org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl.*(..))"
+            id="rememberMeOperation" />
+        <aop:advisor advice-ref="rememberMeTxAdvice" pointcut-ref="rememberMeOperation" />
+    </aop:config>
+
+    <tx:advice id="rememberMeTxAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="createNewToken" />
+            <tx:method name="updateToken" />
+            <tx:method name="removeUserTokens" />
+        </tx:attributes>
+    </tx:advice>
+
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider user-service-ref="innerUserDetailsService">
+            <password-encoder hash="md5">
+                <salt-source user-property="uid" />
+            </password-encoder>
+        </authentication-provider>
+    </authentication-manager>
+</beans:beans>  

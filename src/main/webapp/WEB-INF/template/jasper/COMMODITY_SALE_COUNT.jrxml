@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="COMMODITY_SALE_COUNT" pageWidth="1000" pageHeight="555" orientation="Landscape" columnWidth="1000" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c656b937-217f-4c93-99bc-45d13ca0ee13">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="myt_test"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="ireport.zoom" value="2.357947691000002"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="P_DATE_BEGIN" class="java.lang.String"/>
+	<parameter name="P_DATE_END" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select c.barcode+'  '+c.title as commodity_display,tab55.* from (select tab44.commodity_sid,sum(quantity_begin) AS quantity_begin, Convert(decimal(18,2),sum(commodity_amount_begin)) AS commodity_amount_begin,
+sum(sale_quantity) AS sale_quantity,sum(sale_amount) AS sale_amount,
+sum(quantity_end) AS quantity_end,Convert(decimal(18,2),sum(commodity_amount_end)) AS commodity_amount_end
+ from (select tab11.storage_location_sid,tab11.commodity_sid,tab11.quantity_begin,tab11.commodity_amount_begin,
+case when tab33.sale_quantity is null then 0.00
+	else tab33.sale_quantity end as sale_quantity,
+case when tab33.sale_amount is null then 0.00
+	else tab33.sale_amount end as sale_amount,
+tab22.quantity_end,tab22.commodity_amount_end
+ from (
+select storage_location_sid,commodity_sid,sum(quantity) as quantity_begin,sum(commodity_amount) as commodity_amount_begin
+from (select sc.storage_location_sid, sc.commodity_sid,sc.batch_no,sio.quantity,sio.cost_price,sio.cost_price*sio.quantity as commodity_amount from myt_stock_in_out sio,
+(select MAX(tab1.created_dt) as created_dt,tab1.commodity_stock_sid from (
+select commodity_stock_sid,created_dt
+ from myt_stock_in_out where created_dt<$P{P_DATE_BEGIN}
+GROUP BY commodity_stock_sid,created_dt) tab1 group by tab1.commodity_stock_sid) tab2,
+myt_stock_commodity sc
+ where sio.commodity_stock_sid=tab2.commodity_stock_sid
+and sio.created_dt=tab2.created_dt
+and sio.commodity_stock_sid=sc.sid) tab3 group by tab3.storage_location_sid,tab3.commodity_sid) tab11
+LEFT JOIN(
+select storage_location_sid,commodity_sid,sum(quantity) as quantity_end,sum(commodity_amount) as commodity_amount_end
+from (select sc.storage_location_sid, sc.commodity_sid,sc.batch_no,sio.quantity,sio.cost_price,sio.cost_price*sio.quantity as commodity_amount from myt_stock_in_out sio,
+(select MAX(tab1.created_dt) as created_dt,tab1.commodity_stock_sid from (
+select commodity_stock_sid,created_dt
+ from myt_stock_in_out where created_dt<dateadd(day,1,$P{P_DATE_END})
+GROUP BY commodity_stock_sid,created_dt) tab1 group by tab1.commodity_stock_sid) tab2,
+myt_stock_commodity sc
+ where sio.commodity_stock_sid=tab2.commodity_stock_sid
+and sio.created_dt=tab2.created_dt
+and sio.commodity_stock_sid=sc.sid) tab3 group by tab3.storage_location_sid,tab3.commodity_sid) tab22
+ON tab11.storage_location_sid=tab22.storage_location_sid and tab11.commodity_sid=tab22.commodity_sid
+LEFT JOIN(
+select sdd.storage_location_sid ,sdd.commodity_sid, sum(sdd.quantity) as sale_quantity, sum(sdd.amount) as sale_amount
+from myt_sale_delivery_detail sdd,
+myt_sale_delivery sd
+where sd.sid=sdd.order_sid
+and sd.voucher_state='POST'
+and sd.submit_date>=$P{P_DATE_BEGIN}
+and sd.submit_date<dateadd(day,1,$P{P_DATE_END})
+group by sdd.storage_location_sid,sdd.commodity_sid) tab33
+ON tab33.storage_location_sid=tab22.storage_location_sid and tab33.commodity_sid=tab22.commodity_sid) tab44
+group by tab44.commodity_sid) tab55,
+iyb_commodity c
+where c.sid=tab55.commodity_sid
+order by tab55.sale_quantity desc]]>
+	</queryString>
+	<field name="commodity_display" class="java.lang.String"/>
+	<field name="commodity_sid" class="java.lang.Long"/>
+	<field name="quantity_begin" class="java.math.BigDecimal"/>
+	<field name="commodity_amount_begin" class="java.math.BigDecimal"/>
+	<field name="sale_quantity" class="java.math.BigDecimal"/>
+	<field name="sale_amount" class="java.math.BigDecimal"/>
+	<field name="quantity_end" class="java.math.BigDecimal"/>
+	<field name="commodity_amount_end" class="java.math.BigDecimal"/>
+	<variable name="Variable_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{quantity_begin}]]></variableExpression>
+	</variable>
+	<variable name="Variable_2" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{commodity_amount_begin}]]></variableExpression>
+	</variable>
+	<variable name="Variable_3" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_quantity}]]></variableExpression>
+	</variable>
+	<variable name="Variable_4" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_amount}]]></variableExpression>
+	</variable>
+	<variable name="Variable_5" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{quantity_end}]]></variableExpression>
+	</variable>
+	<variable name="Variable_6" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{commodity_amount_end}]]></variableExpression>
+	</variable>
+	<variable name="Variable_7" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$V{Variable_2}.add($V{Variable_6}).compareTo(new BigDecimal(0))>0
+? (new BigDecimal("2000").multiply($V{Variable_4}.divide($V{Variable_2}.add($V{Variable_6}),5,6))):new BigDecimal(0)]]></variableExpression>
+	</variable>
+	<variable name="Variable_8" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{quantity_begin}.compareTo(new BigDecimal(0))>0
+? ($F{commodity_amount_begin}.divide($F{quantity_begin},2,6)):new BigDecimal(0.00)]]></variableExpression>
+	</variable>
+	<variable name="Variable_9" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{quantity_end}.compareTo(new BigDecimal(0))>0
+? ($F{commodity_amount_end}.divide($F{quantity_end},2,6)):new BigDecimal(0.00)]]></variableExpression>
+	</variable>
+	<variable name="Variable_10" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{commodity_amount_begin}.add($F{commodity_amount_end}).compareTo(new BigDecimal(0))>0
+? (new BigDecimal("2000").multiply($F{sale_amount}.divide($F{commodity_amount_begin}.add($F{commodity_amount_end}),5,6))):new BigDecimal(0)]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="41" splitType="Stretch">
+			<staticText>
+				<reportElement x="180" y="0" width="400" height="35" uuid="426b1686-7efe-40f9-b0fe-4a475b502397">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="14" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[商品销售统计]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="15" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement x="20" y="0" width="220" height="15" uuid="03b83b9e-5513-4901-8b6c-09a8b1a43511">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[商品]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="240" y="0" width="70" height="15" uuid="13f83610-85bf-44f3-9c9f-489da13ce4b8">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期初数量]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="310" y="0" width="80" height="15" uuid="1fc562a7-aa90-4e1d-aa14-9621cf53d584">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期初单价]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="390" y="0" width="70" height="15" uuid="ae480351-b833-45c0-bff2-46c6598d9d22">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期初金额]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="0" width="80" height="15" uuid="bf31ec6f-436a-4f08-85d6-d3fb639e8bcc">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[销售数量]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="540" y="0" width="70" height="15" uuid="f677c62b-3fab-4892-b46e-fc8c3dd20071">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[销售金额]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="610" y="0" width="80" height="15" uuid="f1b9cae1-79d0-4075-959c-86c88dfc7215">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期末数量]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="690" y="0" width="70" height="15" uuid="93e2f5e3-4cb7-4fcb-ad8a-637093d9232f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期末单价]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="760" y="0" width="80" height="15" uuid="d0e5c5c5-4aee-46b1-a174-9d42aa88e386">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[期末金额]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="840" y="0" width="60" height="15" uuid="d55956d1-baf6-412e-b0f1-fcea29e71334">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[周转率]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<property name="local_mesure_unitheight" value="pixel"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="20" y="0" width="220" height="15" uuid="2bc9ac08-e139-4cf1-b327-ea41142d3920">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{commodity_display}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="240" y="0" width="70" height="15" uuid="ec201229-0cc1-4bf7-9951-a8ba01407404">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quantity_begin}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="310" y="0" width="80" height="15" uuid="51f0956e-de38-49c7-9d44-de139e656f65">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="390" y="0" width="70" height="15" uuid="89668c02-e7b4-4236-8a50-15018975201f">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{commodity_amount_begin}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="460" y="0" width="80" height="15" uuid="506d9599-a4ad-4469-a603-51cf70060dc9">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sale_quantity}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="540" y="0" width="70" height="15" uuid="34966dcd-d050-42df-9ca2-fab7141d5451">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sale_amount}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="610" y="0" width="80" height="15" uuid="2ae8ebc9-6e83-4079-bd32-df00e9842fba">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{quantity_end}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="690" y="0" width="70" height="15" uuid="be071f9b-08d4-44ad-948e-5125b9b3e92a">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="760" y="0" width="80" height="15" uuid="80e08379-9b94-47b1-9307-90612d4292ea">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{commodity_amount_end}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="840" y="0" width="60" height="15" uuid="383c14fc-c54f-4e51-bc3b-6d9a52a582ad">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[String.valueOf($V{Variable_10}.setScale(2,6))+"‰"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="42" splitType="Stretch">
+			<staticText>
+				<reportElement x="20" y="0" width="220" height="15" uuid="83be31c3-45a1-4f5b-adc2-45734053312c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="local_mesure_unitheight" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[总计]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="240" y="0" width="70" height="15" uuid="fb6c4749-2af1-45f2-9866-063bdbf246b9">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_1}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="390" y="0" width="70" height="15" uuid="fb59f545-8118-41ba-a430-97dc22052ebc">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="460" y="0" width="80" height="15" uuid="03698b85-ab03-4b0c-b716-1e8e7cf13368">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_3}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="610" y="0" width="80" height="15" uuid="7457b040-2661-46e0-901a-4a12af36375e">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_5}.setScale(0,6)]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="540" y="0" width="70" height="15" uuid="fc752fc9-4911-495d-9732-1488bbabffba">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="760" y="0" width="80" height="15" uuid="e2b37f2c-ca8e-4f40-9b62-e6c7767bf771">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Variable_6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="840" y="0" width="60" height="15" uuid="c0ad8164-92ff-4da4-9cbf-ceae514cf6f0">
+					<property name="local_mesure_unitheight" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="华文宋体" size="10" pdfFontName="STSong-Light" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression><![CDATA[String.valueOf($V{Variable_7}.setScale(2,6))+"‰"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

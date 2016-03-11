@@ -1,0 +1,1 @@
+INSERT INTO tbl_auth_user_r2_role(id,acl_code,acl_type,created_by,created_dt,updated_by,updated_dt,version,role_id,user_id) VALUES ('1',null,null,null,null,null,null,0,'402880c53d23d99a013d23ed7e160003',1);
